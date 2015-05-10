@@ -52,10 +52,10 @@ class CurvesAnalysis(object):
         }
         
         self.setup['groupE'] = {
-            3 : "W12",
-            4 : "D12",
-            5 : "W21",
-            6 : "D21"
+            3 : "w12",
+            4 : "d12",
+            5 : "w21",
+            6 : "d21"
         }
         
         self.group_labels = ['groupA', 'groupB', 'groupC', 'groupE']

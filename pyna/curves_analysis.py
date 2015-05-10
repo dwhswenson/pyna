@@ -30,11 +30,15 @@ class StrandStatistics(object):
     
     def summary(self):
         summ = ""
+        summ += "count: " + str(self.count()) + "\n"
         summ += "mean: " + str(self.mean()) + "\n"
         summ += "std:  " + str(self.std()) + "\n"
         summ += "min:  " + str(self.min()) + "\n"
         summ += "max:  " + str(self.max()) + "\n"
         return summ
+
+    def count(self):
+        return len(self.calc_np)
         
     def mean(self):
         return self.calc_np.mean()
@@ -55,6 +59,8 @@ class StrandStatistics(object):
         return str(self.df)
 
 
+def curves_style(panel):
+    return panel.transpose('major_axis', 'minor_axis', 'items')
     
 
 class CurvesAnalysis(object):

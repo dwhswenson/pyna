@@ -41,19 +41,34 @@ class StrandStatistics(object):
         return len(self.calc_np)
         
     def mean(self):
-        return self.calc_np.mean()
+        if len(self.calc_np) > 0:
+            return self.calc_np.mean()
+        else:
+            return float('nan')
     
     def std(self):
-        return self.calc_np.std()
+        if len(self.calc_np) > 0:
+            return self.calc_np.std()
+        else:
+            return float('nan')
     
     def median(self):
-        return self.calc_np.median()
+        if len(self.calc_np) > 0:
+            return self.calc_np.median()
+        else:
+            return float('nan')
     
     def min(self):
         return self.calc_np.min()
     
     def max(self):
         return self.calc_np.max()
+
+    def hist(self, **kwargs):
+        if len(self.calc_np) > 0:
+            return np.histogram(self.calc_np, **kwargs)
+        else:
+            return [[],[]] # empty histogram for np return style
     
     def __str__(self):
         return str(self.df)

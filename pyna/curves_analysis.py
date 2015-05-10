@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import re
 import math
 
@@ -11,6 +12,49 @@ def floatify(val):
 def make_key(line):
     val2 = re.sub("\)", "", line[0])
     return float(val2)
+
+class StrandStatistics(object):
+    def __init__(self, df, locations=None, times=None):
+        # regularize locations to be a list
+        self.initial_df = df
+        if locations == None:
+            locations = df.columns.values
+        self.locations = locations
+        if times == None:
+            times = df.index.values
+        self.times = times
+        
+        self.df = pd.DataFrame(df.loc[times, locations])
+        self.calc_np = self.df.values.flatten()
+        self.calc_np = self.calc_np[~np.isnan(self.calc_np)]
+    
+    def summary(self):
+        summ = ""
+        summ += "mean: " + str(self.mean()) + "\n"
+        summ += "std:  " + str(self.std()) + "\n"
+        summ += "min:  " + str(self.min()) + "\n"
+        summ += "max:  " + str(self.max()) + "\n"
+        return summ
+        
+    def mean(self):
+        return self.calc_np.mean()
+    
+    def std(self):
+        return self.calc_np.std()
+    
+    def median(self):
+        return self.calc_np.median()
+    
+    def min(self):
+        return self.calc_np.min()
+    
+    def max(self):
+        return self.calc_np.max()
+    
+    def __str__(self):
+        return str(self.df)
+
+
     
 
 class CurvesAnalysis(object):

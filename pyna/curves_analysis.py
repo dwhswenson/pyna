@@ -28,7 +28,7 @@ class StrandStatistics(object):
         self.calc_np = self.df.values.flatten()
         self.calc_np = self.calc_np[~np.isnan(self.calc_np)]
     
-    def summary(self):
+    def summary(self, per_location=False):
         summ = ""
         summ += "count: " + str(self.count()) + "\n"
         summ += "mean: " + str(self.mean()) + "\n"
@@ -37,34 +37,34 @@ class StrandStatistics(object):
         summ += "max:  " + str(self.max()) + "\n"
         return summ
 
-    def count(self):
+    def count(self, per_location=False):
         return len(self.calc_np)
         
-    def mean(self):
+    def mean(self, per_location=False):
         if len(self.calc_np) > 0:
             return self.calc_np.mean()
         else:
             return float('nan')
     
-    def std(self):
+    def std(self, per_location=False):
         if len(self.calc_np) > 0:
             return self.calc_np.std()
         else:
             return float('nan')
     
-    def median(self):
+    def median(self, per_location=False):
         if len(self.calc_np) > 0:
             return self.calc_np.median()
         else:
             return float('nan')
     
-    def min(self):
+    def min(self, per_location=False):
         return self.calc_np.min()
     
-    def max(self):
+    def max(self, per_location=False):
         return self.calc_np.max()
 
-    def hist(self, **kwargs):
+    def hist(self, per_location=False, **kwargs={}):
         if len(self.calc_np) > 0:
             return np.histogram(self.calc_np, **kwargs)
         else:

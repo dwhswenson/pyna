@@ -85,11 +85,28 @@ class StrandStatistics(object):
         # TODO: per_location requires a bit more work here
         if per_location == False:
             if len(self.calc_np) > 0:
-                return np.histogram(self.calc_np, **kwargs)
+                return np.histogram(self.np, **kwargs)
             else:
                 return [[],[]] # empty histogram for np return style
         else:
-            pass
+            hists = [np.histogram(self.df[col], **kwargs)
+                     for col in self.df.columns]
+            # get bins
+            for hist in hists:
+                if len(hist[1]) > 0:
+                    bins = hist[1]
+                    break
+            # prepare a dictionary of histograms 
+            hist_dict = {}
+            for i in range(len(hists)):
+                if len(hists[i][0]) == 0:
+                    myhist = [0]*(len(bins)-1)
+                else:
+                    myhist = hists[i][0]
+                hist_dict[self.df.columns.values[i]] = myhist
+            # convert the dictionary to a DataFrame
+            hist_df = pd.DataFrame(hist_dict).set_index(bins[:-1])
+            return hist_df
     
     def __str__(self):
         return str(self.df)

@@ -164,6 +164,8 @@ class CurvesAnalysis(object):
         self.group_labels = ['groupA', 'groupB', 'groupC', 'groupE']
 
         self.panels = {}
+
+        self.strands = {}
         
         self.co_keys = {}
         self.prep_data = {}
@@ -174,7 +176,22 @@ class CurvesAnalysis(object):
         if self.fname is not None:
             self.read_curves_file(fname)
             
-    
+    def is_strand(self, line):
+        if re.search("\(3'-5'\)", line):
+            return True
+        elif re.search("\(5'-3'\)", line):
+            return True
+        else:
+            return False
+
+    def get_strand(self, line):
+        if re.search("\(3'-5'\)", line):
+            key = "35"
+        elif re.search("\(5'-3'\)", line):
+            key = "53"
+        value = re.split(": ", line)[1].rstrip()
+        return (key, value)
+
     def is_data(self, line):
         splitter = line.split()
         try:
@@ -246,6 +263,9 @@ class CurvesAnalysis(object):
                     splitter.insert(1, '---')
                     splitter.insert(1, '---')
                 self.add_data(splitter, group_label, co_keys, float_data, str_data)
+            elif self.is_strand(line):
+                (k, v) = self.get_strand(line)
+                self.strands[k] = v
     
         
         for label in self.group_labels:

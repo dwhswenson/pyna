@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 import math
+import matplotlib.pyplot as plt
 
 def floatify(val):
     try:
@@ -25,50 +26,88 @@ class StrandStatistics(object):
         self.times = times
         
         self.df = pd.DataFrame(df.loc[times, locations])
-        self.calc_np = self.df.values.flatten()
-        self.calc_np = self.calc_np[~np.isnan(self.calc_np)]
+        np_arr = self.df.values.flatten()
+        self.np = np_arr[~np.isnan(np_arr)]
+
+    def _stat_obj(self, per_location, basepair_label):
+        if per_location == True:
+            return self.df
+        else:
+            return self.np
     
-    def summary(self):
+    def summary(self, per_location=False, basepair_label=False):
+        wrap = lambda x : str(x.values) if hasattr(x, 'values') else str(x)
         summ = ""
-        summ += "count: " + str(self.count()) + "\n"
-        summ += "mean: " + str(self.mean()) + "\n"
-        summ += "std:  " + str(self.std()) + "\n"
-        summ += "min:  " + str(self.min()) + "\n"
-        summ += "max:  " + str(self.max()) + "\n"
+        summ += "count: " + wrap(self.count(per_location)) + "\n"
+        summ += "mean: " + wrap(self.mean(per_location)) + "\n"
+        summ += "std:  " + wrap(self.std(per_location)) + "\n"
+        summ += "min:  " + wrap(self.min(per_location)) + "\n"
+        summ += "max:  " + wrap(self.max(per_location)) + "\n"
         return summ
 
-    def count(self):
-        return len(self.calc_np)
+    def count(self, per_location=False, basepair_label=False):
+        """Count of the number of non-NaN results."""
+        # TODO: this isn't quite right
+        if per_location == False:
+            return len(self.np)
+        else:
+            return self.df.count()
         
-    def mean(self):
-        if len(self.calc_np) > 0:
-            return self.calc_np.mean()
+    def mean(self, per_location=False, basepair_label=False):
+        stat_obj = self._stat_obj(per_location, basepair_label)
+        if len(stat_obj) > 0:
+            return stat_obj.mean()
         else:
             return float('nan')
     
-    def std(self):
-        if len(self.calc_np) > 0:
-            return self.calc_np.std()
+    def std(self, per_location=False, basepair_label=False):
+        stat_obj = self._stat_obj(per_location, basepair_label)
+        if len(stat_obj) > 0:
+            return stat_obj.std()
         else:
             return float('nan')
     
-    def median(self):
-        if len(self.calc_np) > 0:
-            return self.calc_np.median()
+    def median(self, per_location=False, basepair_label=False):
+        stat_obj = self._stat_obj(per_location, basepair_label)
+        if len(stat_obj) > 0:
+            return stat_obj.median()
         else:
             return float('nan')
     
-    def min(self):
-        return self.calc_np.min()
+    def min(self, per_location=False, basepair_label=False):
+        stat_obj = self._stat_obj(per_location, basepair_label)
+        return stat_obj.min()
     
-    def max(self):
-        return self.calc_np.max()
+    def max(self, per_location=False, basepair_label=False):
+        stat_obj = self._stat_obj(per_location, basepair_label)
+        return stat_obj.max()
 
-    def hist(self, **kwargs):
-        if len(self.calc_np) > 0:
-            return np.histogram(self.calc_np, **kwargs)
+    def hist(self, per_location=False, basepair_label=False, **kwargs):
+        # TODO: per_location requires a bit more work here
+        if per_location == False:
+            if len(self.calc_np) > 0:
+                return np.histogram(self.np, **kwargs)
+            else:
+                return [[],[]] # empty histogram for np return style
         else:
-            return [[],[]] # empty histogram for np return style
+            hists = [np.histogram(self.df[col], **kwargs)
+                     for col in self.df.columns]
+            # get bins
+            for hist in hists:
+                if len(hist[1]) > 0:
+                    bins = hist[1]
+                    break
+            # prepare a dictionary of histograms 
+            hist_dict = {}
+            for i in range(len(hists)):
+                if len(hists[i][0]) == 0:
+                    myhist = [0]*(len(bins)-1)
+                else:
+                    myhist = hists[i][0]
+                hist_dict[self.df.columns.values[i]] = myhist
+            # convert the dictionary to a DataFrame
+            hist_df = pd.DataFrame(hist_dict).set_index(bins[:-1])
+            return hist_df
     
     def __str__(self):
         return str(self.df)
@@ -76,7 +115,6 @@ class StrandStatistics(object):
 
 def curves_style(panel):
     return panel.transpose('major_axis', 'minor_axis', 'items')
-    
 
 class CurvesAnalysis(object):
     # TODO: write docs ... basic idea, though is that we create a dict of
@@ -124,7 +162,7 @@ class CurvesAnalysis(object):
         }
         
         self.group_labels = ['groupA', 'groupB', 'groupC', 'groupE']
-        
+
         self.panels = {}
         
         self.co_keys = {}

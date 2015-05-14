@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 import math
+import matplotlib.pyplot as plt
 
 def floatify(val):
     try:
@@ -28,13 +29,13 @@ class StrandStatistics(object):
         np_arr = self.df.values.flatten()
         self.np = np_arr[~np.isnan(np_arr)]
 
-    def _stat_obj(self, per_location):
+    def _stat_obj(self, per_location, basepair_label):
         if per_location == True:
             return self.df
         else:
             return self.np
     
-    def summary(self, per_location=False):
+    def summary(self, per_location=False, basepair_label=False):
         wrap = lambda x : str(x.values) if hasattr(x, 'values') else str(x)
         summ = ""
         summ += "count: " + wrap(self.count(per_location)) + "\n"
@@ -44,7 +45,7 @@ class StrandStatistics(object):
         summ += "max:  " + wrap(self.max(per_location)) + "\n"
         return summ
 
-    def count(self, per_location=False):
+    def count(self, per_location=False, basepair_label=False):
         """Count of the number of non-NaN results."""
         # TODO: this isn't quite right
         if per_location == False:
@@ -52,36 +53,36 @@ class StrandStatistics(object):
         else:
             return self.df.count()
         
-    def mean(self, per_location=False):
-        stat_obj = self._stat_obj(per_location)
+    def mean(self, per_location=False, basepair_label=False):
+        stat_obj = self._stat_obj(per_location, basepair_label)
         if len(stat_obj) > 0:
             return stat_obj.mean()
         else:
             return float('nan')
     
-    def std(self, per_location=False):
-        stat_obj = self._stat_obj(per_location)
+    def std(self, per_location=False, basepair_label=False):
+        stat_obj = self._stat_obj(per_location, basepair_label)
         if len(stat_obj) > 0:
             return stat_obj.std()
         else:
             return float('nan')
     
-    def median(self, per_location=False):
-        stat_obj = self._stat_obj(per_location)
+    def median(self, per_location=False, basepair_label=False):
+        stat_obj = self._stat_obj(per_location, basepair_label)
         if len(stat_obj) > 0:
             return stat_obj.median()
         else:
             return float('nan')
     
-    def min(self, per_location=False):
-        stat_obj = self._stat_obj(per_location)
+    def min(self, per_location=False, basepair_label=False):
+        stat_obj = self._stat_obj(per_location, basepair_label)
         return stat_obj.min()
     
-    def max(self, per_location=False):
-        stat_obj = self._stat_obj(per_location)
+    def max(self, per_location=False, basepair_label=False):
+        stat_obj = self._stat_obj(per_location, basepair_label)
         return stat_obj.max()
 
-    def hist(self, per_location=False, **kwargs):
+    def hist(self, per_location=False, basepair_label=False, **kwargs):
         # TODO: per_location requires a bit more work here
         if per_location == False:
             if len(self.calc_np) > 0:
@@ -114,7 +115,6 @@ class StrandStatistics(object):
 
 def curves_style(panel):
     return panel.transpose('major_axis', 'minor_axis', 'items')
-    
 
 class CurvesAnalysis(object):
     # TODO: write docs ... basic idea, though is that we create a dict of

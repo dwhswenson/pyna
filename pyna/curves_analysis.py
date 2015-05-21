@@ -29,6 +29,8 @@ class StrandStatistics(object):
         np_arr = self.df.values.flatten()
         self.np = np_arr[~np.isnan(np_arr)]
 
+        self.labels = self.locations
+
     def _stat_obj(self, per_location, label="number"):
         if per_location == True:
             return self.df
@@ -176,6 +178,12 @@ class CurvesAnalysis(object):
         if self.fname is not None:
             self.read_curves_file(fname)
             
+    def set_labels(self, label_dict):
+        self.labels = []
+        for panel in self.panels.values():
+            pass
+
+
     def is_strand(self, line):
         if re.search("\(3'-5'\)", line):
             return True

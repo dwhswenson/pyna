@@ -18,10 +18,10 @@ class StrandStatistics(object):
     def __init__(self, df, locations=None, times=None):
         # regularize locations to be a list
         self.initial_df = df
-        if locations == None:
+        if locations is None:
             locations = df.columns.values
         self.locations = locations
-        if times == None:
+        if times is None:
             times = df.index.values
         self.times = times
         

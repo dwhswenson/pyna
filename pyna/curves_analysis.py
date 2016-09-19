@@ -250,8 +250,15 @@ class CurvesAnalysis(object):
         
         for label in self.group_labels:
             dfs = {}
-            for (key, name) in zip(self.setup[label].keys(), self.setup[label].values()):
-                dfs[name] = pd.DataFrame(self.prep_data[label][key])
+            setup_dict = self.setup[label]
+            prep_data = self.prep_data[label]
+            for key in setup_dict.keys():
+                name = setup_dict[key]
+                if len(prep_data) == len(setup_dict):
+                    dfs[name] = pd.DataFrame(prep_data[key])
+                else:
+                    dfs[name] = pd.DataFrame(columns=setup_dict.values())
+
             self.panels[label] = pd.Panel(dfs)
             
         return (countA, countB, countC, countD, countE)

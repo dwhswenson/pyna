@@ -1,4 +1,6 @@
 import itertools
+import numpy as np
+import mdtraj as md
 # hydrogen bond motif has lists h-bonds with donor, then acceptor
 # the possible hydrogens are found on-the-fly
 wc_motif = {
@@ -51,7 +53,7 @@ def list_possible_triples(residue_1, residue_2, motif, topology):
     return triples
 
 
-def possible_motif_hydrogen_bonds(topology, motif, chainid, other_chains):
+def all_motif_hydrogen_bonds(topology, motif, chainid, other_chains):
     """
     Returns
     -------
@@ -79,7 +81,7 @@ def possible_motif_hydrogen_bonds(topology, motif, chainid, other_chains):
     return possible_hbonds
 
 
-def possible_hbonds_to_indices(possible_hbonds):
+def hbonds_to_indices(possible_hbonds):
     possible_bonds_idx = {}
     for residue_pair, motif_bonds in possible_hbonds.items():
         res_pair_idx = frozenset([r.index for r in residue_pair])
@@ -110,3 +112,21 @@ def check_motif(possible_hbonds_idx, results):
         if all(intermediate.values()):
             has_hbond += [res_pair_idx]
     return has_hbond
+
+def motif_hbond_triple_idxs(topology, motif, chainid, other_chains):
+    possible_hbonds = all_motif_hydrogen_bonds(
+        topology=topology,
+        motif=motif,
+        chainid=chainid,
+        other_chains=other_chains
+    )
+    possible_hbond_idxs = hbonds_to_indices(possible_hbonds)
+    return unnest_triples(possible_hbond_idxs)
+
+def hbond_triples(trajectory, triples, hbond_method):
+    has_hbond = hbond_method(trajectory, triples)
+    motif_hbond_idxs = np.array([
+	[triple for (triple, result) in zip(triples, frame) if result]
+	for frame in has_hbond
+    ])
+    return motif_hbond_idxs

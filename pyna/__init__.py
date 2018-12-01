@@ -1,3 +1,3 @@
-from curves_analysis import CurvesAnalysis, StrandStatistics, curves_style
+from .curves_analysis import CurvesAnalysis, StrandStatistics, curves_style
 
-from animated_dataframe import AnimatedDataFrame
+from .animated_dataframe import AnimatedDataFrame

@@ -29,13 +29,15 @@ class StrandStatistics(object):
         np_arr = self.df.values.flatten()
         self.np = np_arr[~np.isnan(np_arr)]
 
-    def _stat_obj(self, per_location, basepair_label):
+        self.labels = self.locations
+
+    def _stat_obj(self, per_location, label="number"):
         if per_location == True:
             return self.df
         else:
             return self.np
     
-    def summary(self, per_location=False, basepair_label=False):
+    def summary(self, per_location=False, label="number"):
         wrap = lambda x : str(x.values) if hasattr(x, 'values') else str(x)
         summ = ""
         summ += "count: " + wrap(self.count(per_location)) + "\n"
@@ -45,7 +47,7 @@ class StrandStatistics(object):
         summ += "max:  " + wrap(self.max(per_location)) + "\n"
         return summ
 
-    def count(self, per_location=False, basepair_label=False):
+    def count(self, per_location=False, label="number"):
         """Count of the number of non-NaN results."""
         # TODO: this isn't quite right
         if per_location == False:
@@ -53,36 +55,36 @@ class StrandStatistics(object):
         else:
             return self.df.count()
         
-    def mean(self, per_location=False, basepair_label=False):
-        stat_obj = self._stat_obj(per_location, basepair_label)
+    def mean(self, per_location=False, label="number"):
+        stat_obj = self._stat_obj(per_location, label)
         if len(stat_obj) > 0:
             return stat_obj.mean()
         else:
             return float('nan')
     
-    def std(self, per_location=False, basepair_label=False):
-        stat_obj = self._stat_obj(per_location, basepair_label)
+    def std(self, per_location=False, label="number"):
+        stat_obj = self._stat_obj(per_location, label)
         if len(stat_obj) > 0:
             return stat_obj.std()
         else:
             return float('nan')
     
-    def median(self, per_location=False, basepair_label=False):
-        stat_obj = self._stat_obj(per_location, basepair_label)
+    def median(self, per_location=False, label="number"):
+        stat_obj = self._stat_obj(per_location, label)
         if len(stat_obj) > 0:
             return stat_obj.median()
         else:
             return float('nan')
     
-    def min(self, per_location=False, basepair_label=False):
-        stat_obj = self._stat_obj(per_location, basepair_label)
+    def min(self, per_location=False, label="number"):
+        stat_obj = self._stat_obj(per_location, label)
         return stat_obj.min()
     
-    def max(self, per_location=False, basepair_label=False):
-        stat_obj = self._stat_obj(per_location, basepair_label)
+    def max(self, per_location=False, label="number"):
+        stat_obj = self._stat_obj(per_location, label)
         return stat_obj.max()
 
-    def hist(self, per_location=False, basepair_label=False, **kwargs):
+    def hist(self, per_location=False, label="number", **kwargs):
         # TODO: per_location requires a bit more work here
         if per_location == False:
             if len(self.calc_np) > 0:
@@ -164,6 +166,8 @@ class CurvesAnalysis(object):
         self.group_labels = ['groupA', 'groupB', 'groupC', 'groupE']
 
         self.panels = {}
+
+        self.strands = {}
         
         self.co_keys = {}
         self.prep_data = {}
@@ -174,7 +178,28 @@ class CurvesAnalysis(object):
         if self.fname is not None:
             self.read_curves_file(fname)
             
-    
+    def set_labels(self, label_dict):
+        self.labels = []
+        for panel in self.panels.values():
+            pass
+
+
+    def is_strand(self, line):
+        if re.search("\(3'-5'\)", line):
+            return True
+        elif re.search("\(5'-3'\)", line):
+            return True
+        else:
+            return False
+
+    def get_strand(self, line):
+        if re.search("\(3'-5'\)", line):
+            key = "35"
+        elif re.search("\(5'-3'\)", line):
+            key = "53"
+        value = re.split(": ", line)[1].rstrip()
+        return (key, value)
+
     def is_data(self, line):
         splitter = line.split()
         try:
@@ -243,9 +268,12 @@ class CurvesAnalysis(object):
                 splitter = self.line_prep(line, co_keys, float_data, str_data)
                 key = make_key(splitter)
                 if key - math.floor(key) > 0.01: # we have an x.5 value
-                    splitter.insert(1, '---')
-                    splitter.insert(1, '---')
+                    splitter.insert(1, '-')
+                    splitter.insert(1, '-')
                 self.add_data(splitter, group_label, co_keys, float_data, str_data)
+            elif self.is_strand(line):
+                (k, v) = self.get_strand(line)
+                self.strands[k] = v
     
         
         for label in self.group_labels:

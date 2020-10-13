@@ -15,7 +15,7 @@ looking for.
 ### Recommended/Required for some routines:
 
 * matplotlib
-* ffmeg or mplayer (for `AnimatedDataFrame`)
+* ffmpeg or mplayer (for `AnimatedDataFrame`)
 * IPython (we recommend IPython notebooks for interactive analysis and
   visualization.)
 

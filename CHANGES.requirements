@@ -1,0 +1,9 @@
+2015-05-15 : The original requirements are:
+
+* numpy
+* pandas
+* matplotlib (plotting)
+* ffmpeg or mplayer (AnimatedDataFrame)
+
+In addition, you need IPython to use the ipynb examples, and you need
+Curves+ to generate the data we analyze.
